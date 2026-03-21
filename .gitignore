@@ -1,3 +1,10 @@
+#local files 
+.venv
+.env
+test.sql
+package-lock.json
+node_modules/
+main.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
