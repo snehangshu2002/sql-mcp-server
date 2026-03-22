@@ -213,7 +213,7 @@ Table and schema names are validated against injection patterns. Results are cap
 
 ## Requirements
 
-- Python 3.12+
+- Python 3.10+
 - SQL Server with ODBC Driver 17 or 18
 - Claude Desktop with MCP support
 
