@@ -12,6 +12,7 @@ jobs:
 
     permissions:
       id-token: write  # Required for Trusted Publisher (no token needed)
+      contents: read   # Required to checkout the code
 
     steps:
       - name: Checkout code
