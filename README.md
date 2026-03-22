@@ -4,6 +4,17 @@ An MCP server that connects Claude to a Microsoft SQL Server database over stdio
 
 ---
 
+## Installation
+
+```bash
+pip install sql-mcp-server
+```
+
+You also need the **ODBC Driver for SQL Server** installed:
+https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
+
+---
+
 ## Tools
 
 **list_tables** — Lists every user-created table in the database, grouped by schema.
@@ -20,7 +31,7 @@ An MCP server that connects Claude to a Microsoft SQL Server database over stdio
 
 ## Project structure
 ```
-C:/path/to/sql-mcp-server/
+sql-mcp-server/
 ├── server.py          # MCP server and tool definitions
 ├── db.py              # SQL Server connection helper (loads .env)
 ├── pyproject.toml     # Project metadata and dependencies
@@ -33,32 +44,35 @@ C:/path/to/sql-mcp-server/
 
 ## Setup
 
-### 1. Install dependencies
-```bash
-pip install mcp[cli] pyodbc python-dotenv
-```
+### 1. Configure the database connection
 
-You also need the ODBC Driver for SQL Server installed:
-https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
+Create a `.env` file in the project root:
 
----
-
-### 2. Configure the database connection
-
-If you're using the Claude Desktop config below, put your credentials in the `env` block — no `.env` file needed.
-
-For local testing only, create a `.env` file:
+**Windows Authentication (Trusted Connection):**
 ```env
 DB_DRIVER=ODBC Driver 17 for SQL Server
 DB_SERVER=YOUR_SERVER_NAME\\SQLEXPRESS
 DB_NAME=your_database_name
 ```
 
+**SQL Server Authentication (username + password):**
+```env
+DB_DRIVER=ODBC Driver 17 for SQL Server
+DB_SERVER=YOUR_SERVER_NAME\\SQLEXPRESS
+DB_NAME=your_database_name
+DB_USER=your_username
+DB_PASSWORD=your_password
+```
+
+If you're using the Claude Desktop config below, put your credentials in the `env` block — no `.env` file needed.
+
 ---
 
-### 3. Register with Claude Desktop
+### 2. Register with Claude Desktop
 
 Add this to `claude_desktop_config.json`:
+
+**Windows Authentication:**
 ```json
 {
   "mcpServers": {
@@ -71,7 +85,7 @@ Add this to `claude_desktop_config.json`:
         "server.py"
       ],
       "env": {
-        "DB_SERVER": "YOUR_SERVER_NAME\\SQLEXPRESS",
+        "DB_SERVER": "YOUR_SERVER_NAME\\\\SQLEXPRESS",
         "DB_NAME": "your_database_name",
         "DB_DRIVER": "ODBC Driver 17 for SQL Server"
       }
@@ -80,13 +94,31 @@ Add this to `claude_desktop_config.json`:
 }
 ```
 
-Replace:
+**SQL Server Authentication:**
+```json
+{
+  "mcpServers": {
+    "sql-assistant": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:/path/to/sql-mcp-server",
+        "run",
+        "server.py"
+      ],
+      "env": {
+        "DB_SERVER": "YOUR_SERVER_NAME\\\\SQLEXPRESS",
+        "DB_NAME": "your_database_name",
+        "DB_DRIVER": "ODBC Driver 17 for SQL Server",
+        "DB_USER": "your_username",
+        "DB_PASSWORD": "your_password"
+      }
+    }
+  }
+}
+```
 
-- `C:/path/to/sql-mcp-server` → path to the repo on your machine
-- `YOUR_SERVER_NAME\\SQLEXPRESS` → your SQL Server instance name
-- `your_database_name` → the database you want Claude to access
-
-Restart Claude Desktop after saving.
+Replace the placeholder values with your actual details. Restart Claude Desktop after saving.
 
 ---
 
@@ -102,21 +134,26 @@ With the server running, try asking Claude:
 
 ---
 
-## Notes
+## Safety
 
-Only SELECT queries run. These are blocked before they reach the database:
+Only SELECT queries run. These keywords are blocked before they reach the database:
 
 `INSERT` `UPDATE` `DELETE` `DROP` `TRUNCATE` `ALTER` `CREATE` `EXEC`
 
-Results cap at 200 rows regardless of `max_rows`.
+Table and schema names are validated against injection patterns. Results cap at 200 rows.
 
-Don't commit your `.env` file — it has your connection credentials.
+> ⚠️ **Don't commit your `.env` file** — it contains your connection credentials.
 
 ---
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.12+
 - SQL Server with ODBC Driver 17 or 18
-- Windows (uses Trusted Authentication)
 - Claude Desktop with MCP support
+
+---
+
+## License
+
+MIT
