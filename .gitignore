@@ -5,6 +5,8 @@ test.sql
 package-lock.json
 node_modules/
 main.py
+code_explanation.md.resolved
+PUBLISHING_GUIDE.md
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
