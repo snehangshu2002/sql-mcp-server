@@ -1,9 +1,27 @@
 from mcp.server.fastmcp import FastMCP
 from db import get_connection
 import json
+import re
 
 # Initialize FastMCP server
 mcp = FastMCP("sql-assistant")
+
+# ─────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────
+FORBIDDEN_KEYWORDS = ["INSERT", "UPDATE", "DELETE", "DROP", "TRUNCATE", "ALTER", "CREATE", "EXEC"]
+
+def _check_select_only(sql: str) -> str | None:
+    """Return an error message if `sql` contains a forbidden keyword, else None."""
+    sql_upper = sql.strip().upper()
+    for keyword in FORBIDDEN_KEYWORDS:
+        if sql_upper.startswith(keyword) or f" {keyword} " in sql_upper:
+            return f"❌ '{keyword}' statements are not allowed. Only SELECT queries are permitted."
+    return None
+
+def _validate_identifier(name: str) -> bool:
+    """Return True if `name` is a safe SQL identifier (letters, digits, underscores)."""
+    return bool(re.match(r'^[a-zA-Z0-9_]+$', name))
 
 
 # ─────────────────────────────────────────────
@@ -101,12 +119,9 @@ def run_query(sql: str, max_rows: int = 50) -> str:
         max_rows: Maximum rows to return (default 50, max 200)
     """
     # Safety check — block destructive statements
-    forbidden = ["INSERT", "UPDATE", "DELETE", "DROP", "TRUNCATE", "ALTER", "CREATE", "EXEC"]
-    sql_upper = sql.strip().upper()
-
-    for keyword in forbidden:
-        if sql_upper.startswith(keyword) or f" {keyword} " in sql_upper:
-            return f"❌ '{keyword}' statements are not allowed. Only SELECT queries are permitted."
+    err = _check_select_only(sql)
+    if err:
+        return err
 
     max_rows = min(max_rows, 200)  # hard cap
 
@@ -151,6 +166,12 @@ def explain_query(sql: str) -> str:
     Args:
         sql: A valid T-SQL SELECT query to explain
     """
+    # Safety check — same rules as run_query
+    err = _check_select_only(sql)
+    if err:
+        return err
+
+    conn = None
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -158,8 +179,6 @@ def explain_query(sql: str) -> str:
         cursor.execute("SET SHOWPLAN_TEXT ON")
         cursor.execute(sql)
         rows = cursor.fetchall()
-        cursor.execute("SET SHOWPLAN_TEXT OFF")
-        conn.close()
 
         if not rows:
             return "No execution plan returned."
@@ -169,6 +188,13 @@ def explain_query(sql: str) -> str:
 
     except Exception as e:
         return f"Error fetching execution plan: {str(e)}"
+    finally:
+        if conn:
+            try:
+                conn.cursor().execute("SET SHOWPLAN_TEXT OFF")
+            except Exception:
+                pass
+            conn.close()
 
 
 # ─────────────────────────────────────────────
@@ -184,6 +210,11 @@ def get_table_sample(table_name: str, schema: str = "dbo", rows: int = 5) -> str
         schema: Schema name, default is 'dbo'
         rows: Number of rows to preview (default 5)
     """
+    if not _validate_identifier(table_name):
+        return f"❌ Invalid table name: '{table_name}'. Only letters, digits, and underscores are allowed."
+    if not _validate_identifier(schema):
+        return f"❌ Invalid schema name: '{schema}'. Only letters, digits, and underscores are allowed."
+
     sql = f"SELECT TOP {min(rows, 20)} * FROM [{schema}].[{table_name}]"
     return run_query(sql)
 
