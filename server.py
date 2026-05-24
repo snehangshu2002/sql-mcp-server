@@ -1,6 +1,5 @@
 from mcp.server.fastmcp import FastMCP
 from db import get_connection
-import json
 import re
 
 # Initialize FastMCP server
@@ -77,7 +76,7 @@ def describe_table(table_name: str, schema: str = "dbo") -> str:
             CHARACTER_MAXIMUM_LENGTH,
             IS_NULLABLE,
             COLUMN_DEFAULT
-        FROM INFORMATION_SCHEMA.COLUMNS
+        FROM INFORMATION_SCHEMA.COLUMNS 
         WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?
         ORDER BY ORDINAL_POSITION
     """
@@ -156,6 +155,12 @@ def run_query(sql: str, max_rows: int = 50) -> str:
 
 # ─────────────────────────────────────────────
 # TOOL 4: explain_query
+
+"""
+query optimization
+debugging slow SQL
+understanding indexes/scans/joins
+"""
 # ─────────────────────────────────────────────
 @mcp.tool()
 def explain_query(sql: str) -> str:
@@ -176,7 +181,7 @@ def explain_query(sql: str) -> str:
         conn = get_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SET SHOWPLAN_TEXT ON")
+        cursor.execute("SET SHOWPLAN_TEXT ON") #Do not execute queries. Just return the execution plan as text.
         cursor.execute(sql)
         rows = cursor.fetchall()
 
