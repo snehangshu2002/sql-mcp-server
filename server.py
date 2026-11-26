@@ -8,13 +8,14 @@ mcp = FastMCP("sql-assistant")
 # ─────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────
-FORBIDDEN_KEYWORDS = ["INSERT", "UPDATE", "DELETE", "DROP", "TRUNCATE", "ALTER", "CREATE", "EXEC"]
+FORBIDDEN_KEYWORDS = ["INSERT", "UPDATE", "DELETE", "DROP", "TRUNCATE", "ALTER", "CREATE", "EXEC", "EXECUTE"]
 
 def _check_select_only(sql: str) -> str | None:
     """Return an error message if `sql` contains a forbidden keyword, else None."""
-    sql_upper = sql.strip().upper()
+    sql_upper = sql.upper()
     for keyword in FORBIDDEN_KEYWORDS:
-        if sql_upper.startswith(keyword) or f" {keyword} " in sql_upper:
+        # Whole-word match: also catches keywords after newlines, tabs or ';'.
+        if re.search(rf"\b{keyword}\b", sql_upper):
             return f"❌ '{keyword}' statements are not allowed. Only SELECT queries are permitted."
     return None
 
