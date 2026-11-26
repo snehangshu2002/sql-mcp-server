@@ -203,7 +203,7 @@ With the server connected, try asking Claude:
 
 Only SELECT queries run. These keywords are blocked before reaching the database:
 
-`INSERT` `UPDATE` `DELETE` `DROP` `TRUNCATE` `ALTER` `CREATE` `EXEC`
+`INSERT` `UPDATE` `DELETE` `DROP` `TRUNCATE` `ALTER` `CREATE` `EXEC` `EXECUTE`
 
 Table and schema names are validated against injection patterns. Results are capped at 200 rows.
 
