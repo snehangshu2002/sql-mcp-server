@@ -83,7 +83,7 @@ Add this to `claude_desktop_config.json` — usually at `%APPDATA%\Claude\claude
       "command": "sql-mcp-server",
       "args": [],
       "env": {
-        "DB_SERVER": "YOUR_SERVER_NAME\\\\SQLEXPRESS",
+        "DB_SERVER": "YOUR_SERVER_NAME\\SQLEXPRESS",
         "DB_NAME": "your_database_name",
         "DB_DRIVER": "ODBC Driver 17 for SQL Server"
       }
@@ -100,7 +100,7 @@ Add this to `claude_desktop_config.json` — usually at `%APPDATA%\Claude\claude
       "command": "sql-mcp-server",
       "args": [],
       "env": {
-        "DB_SERVER": "YOUR_SERVER_NAME\\\\SQLEXPRESS",
+        "DB_SERVER": "YOUR_SERVER_NAME\\SQLEXPRESS",
         "DB_NAME": "your_database_name",
         "DB_DRIVER": "ODBC Driver 17 for SQL Server",
         "DB_USER": "your_username",
@@ -120,7 +120,7 @@ Add this to `claude_desktop_config.json` — usually at `%APPDATA%\Claude\claude
       "command": "uvx",
       "args": ["sql-mcp-server"],
       "env": {
-        "DB_SERVER": "YOUR_SERVER_NAME\\\\SQLEXPRESS",
+        "DB_SERVER": "YOUR_SERVER_NAME\\SQLEXPRESS",
         "DB_NAME": "your_database_name",
         "DB_DRIVER": "ODBC Driver 17 for SQL Server",
         "DB_USER": "your_username",
@@ -148,7 +148,7 @@ If you cloned the repository and want to run it from source, use `uv` and specif
         "server.py"
       ],
       "env": {
-        "DB_SERVER": "YOUR_SERVER_NAME\\\\SQLEXPRESS",
+        "DB_SERVER": "YOUR_SERVER_NAME\\SQLEXPRESS",
         "DB_NAME": "your_database_name",
         "DB_DRIVER": "ODBC Driver 17 for SQL Server"
       }
@@ -170,7 +170,7 @@ If you cloned the repository and want to run it from source, use `uv` and specif
         "server.py"
       ],
       "env": {
-        "DB_SERVER": "YOUR_SERVER_NAME\\\\SQLEXPRESS",
+        "DB_SERVER": "YOUR_SERVER_NAME\\SQLEXPRESS",
         "DB_NAME": "your_database_name",
         "DB_DRIVER": "ODBC Driver 17 for SQL Server",
         "DB_USER": "your_username",
